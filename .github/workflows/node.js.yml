@@ -4,35 +4,21 @@ name: Node.js CI
 
 on: [push]
 
-jobs:
-  build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        node-version: [14, 16, 18]
-        os: [ubuntu-latest, macOS-latest]
-    steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-    - run: npm --version
-    - run: npm ci --ignore-scripts
-    - run: npm test
+permissions:
+  contents: read  #  to fetch code (actions/checkout)
 
-  # Node 14 comes with npm 6 which has issues on Windows
-  # Skipping tests on Windows with Node 14
-  build-windows:
-    runs-on: ${{ matrix.os }}
+jobs:
+  test:
     strategy:
       matrix:
-        node-version: [16, 18]
-        os: [windows-latest]
+        node-version: [18, 20, 22]
+        os: [ubuntu-latest, macOS-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-node@v3
-      with:
-        node-version: ${{ matrix.node-version }}
-    - run: npm --version
-    - run: npm ci --ignore-scripts
-    - run: npm test
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm --version
+      - run: npm ci --ignore-scripts
+      - run: ./test.sh
